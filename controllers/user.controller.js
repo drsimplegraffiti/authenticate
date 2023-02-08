@@ -2,6 +2,8 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const sendEmail = require("../utils/sendEmail");
 
 // create a user signup controller
 exports.userSignUp = async (req, res) => {
@@ -34,6 +36,16 @@ exports.userSignUp = async (req, res) => {
       first_name,
       last_name,
     });
+
+    console.log(user.email);
+    // send email
+    await sendEmail({
+      email: user.email,
+      subject: "Welcome to Wakanda",
+      message: "Welcome to Wakanda",
+      html: `<h1>Welcome to Wakanda</h1>`,
+    });
+
     return res.status(201).json({
       message: "user created successfully",
       id: user._id,
@@ -120,6 +132,68 @@ exports.userProfile = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: error.message,
+    });
+  }
+};
+
+// send bulk email to all users
+exports.sendBulkEmail = async (req, res) => {
+  try {
+    const id = req.user.id;
+
+    console.log(id);
+
+    const userRole = await User.findById(id);
+
+    if (userRole.role !== "admin")
+      //
+      return res.status(401).json({
+        error: "Unauthorized you are not an admin",
+      });
+
+    // get all users
+    const users = await User.find(); // request
+
+    for (let i = 0; i < users.length; i++) {
+      console.log(users[i].email);
+      await sendEmail({
+        // 0        1    2
+        email: users[i].email, // ["timi", "tayo", "richest"]
+        subject: "Welcome to Wakanda",
+        message: "Welcome to Wakanda",
+        html: `<h1>Welcome to Wakanda</h1>`,
+      });
+    }
+
+    return res.status(200).json({
+      message: "email sent successfully",
+    }); // response
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+// change a user to admin
+exports.changeRole = async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    // check if user exists in db using id
+    const user = await User.findById(id);
+
+    if (!user)
+      return res.status(404).json({
+        error: "user not found",
+      });
+    
+    // update user role
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: error.message,
     });
   }
 };

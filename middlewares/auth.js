@@ -20,6 +20,8 @@ const isAuthenticated = async (req, res, next) => {
     }
 
     req.user = decoded; // create a custom name called user
+    // req.user.id; // get the id from the user
+    // req.user.email;
 
     next();
   } catch (error) {
