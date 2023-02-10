@@ -3,6 +3,7 @@ const {
   userLogin,
   userProfile,
   sendBulkEmail,
+  singleUserById,
 } = require("../controllers/user.controller");
 
 const express = require("express");
@@ -19,4 +20,5 @@ router.get("/profile", isAuthenticated, userProfile); // user p
 
 router.get("/bulk", isAuthenticated, sendBulkEmail); // authentication -- signed , using jwt token
 
+router.get("/single/:userId", singleUserById);
 module.exports = router;

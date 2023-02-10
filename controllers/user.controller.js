@@ -70,7 +70,7 @@ exports.userLogin = async (req, res) => {
       });
 
     // check if user is in db
-    const userExist = await User.findOne({ email });
+    const userExist = await User.findOne({ email }); //.select("+password");
 
     if (!userExist)
       return res.status(404).json({
@@ -188,8 +188,22 @@ exports.changeRole = async (req, res) => {
       return res.status(404).json({
         error: "user not found",
       });
-    
+
     // update user role
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+// fetch a single user
+exports.singleUserById = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById({ _id: userId });
+    return res.status(200).json(user);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
